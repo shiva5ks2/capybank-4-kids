@@ -1,0 +1,1128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CapyBank</title>
+<meta name="description" content="A pretend savings passbook for one young saver.">
+<meta name="theme-color" content="#1F5A4B">
+<meta name="color-scheme" content="light">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preload" href="fonts/fredoka-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:"Fredoka";src:url(fonts/fredoka-latin-500-normal.woff2) format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"Fredoka";src:url(fonts/fredoka-latin-600-normal.woff2) format("woff2");font-weight:600;font-display:swap}
+@font-face{font-family:"Atkinson Hyperlegible";src:url(fonts/atkinson-hyperlegible-latin-400-normal.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Atkinson Hyperlegible";src:url(fonts/atkinson-hyperlegible-latin-700-normal.woff2) format("woff2");font-weight:700;font-display:swap}
+@font-face{font-family:"Atkinson Mono";src:url(fonts/atkinson-hyperlegible-mono-latin-400-normal.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Atkinson Mono";src:url(fonts/atkinson-hyperlegible-mono-latin-700-normal.woff2) format("woff2");font-weight:700;font-display:swap}
+
+:root{
+  --mist:#E8EFEA; --paper:#FFFFFF; --paper-2:#F4F7F2; --rule:#DFE6DC; --rule-2:#C7D3C4;
+  --ink:#3A2412; --ink-2:#5E4A3B; --ink-3:#7A6758;
+  --fur:#B07A45; --fur-dark:#8E5C30; --fur-pale:#EFDFCB;
+  --gold:#EF9F27; --gold-deep:#BA7517; --gold-pale:#FCEBCB; --gold-ink:#6B3F06;
+  --pond:#1F5A4B; --pond-2:#174639; --pond-pale:#DCEBE3;
+  --in:#2D6E3E; --in-pale:#E3F0DF;
+  --out:#A3324A; --out-pale:#F8E3E7;
+  --int:#22608A; --int-pale:#E0EDF6;
+  --display:"Fredoka", ui-rounded, "Segoe UI", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono:"Atkinson Mono", ui-monospace, "Roboto Mono", monospace;
+  --tabs-h:68px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--mist);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5;-webkit-tap-highlight-color:transparent}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+[hidden]{display:none !important}
+h1,h2,h3{font-family:var(--display);font-weight:600;color:var(--ink);margin:0;line-height:1.2}
+h2{font-size:21px;margin-bottom:10px}
+p{margin:0 0 10px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+
+/* Shell */
+.app{max-width:760px;margin:0 auto;padding:0 16px calc(var(--tabs-h) + 40px + env(safe-area-inset-bottom))}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 0 14px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand svg{width:44px;height:44px;flex:none}
+.brand-name{font-family:var(--display);font-weight:600;font-size:26px;color:var(--ink)}
+.holder{font-size:15px;color:var(--ink-2);text-align:right}
+.chip-banker{display:inline-flex;align-items:center;gap:10px;background:var(--gold-pale);color:var(--gold-ink);border-radius:999px;padding:5px 5px 5px 14px;font-size:14px;font-weight:700}
+.chip-banker button{border:0;background:var(--paper);border-radius:999px;padding:6px 14px;font-weight:700;cursor:pointer;color:var(--gold-ink)}
+
+/* Tabs */
+.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--paper);border-top:1px solid var(--rule);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom);z-index:40}
+.tabs button{flex:1;max-width:220px;height:var(--tabs-h);border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:14px;font-weight:700;color:var(--ink-3);cursor:pointer;position:relative}
+.tabs button svg{width:26px;height:26px}
+.tabs button[aria-current="page"]{color:var(--pond)}
+.tabs button[aria-current="page"]::before{content:"";position:absolute;top:0;left:50%;width:44px;height:4px;margin-left:-22px;background:var(--pond);border-radius:0 0 4px 4px}
+
+/* Summary: hero */
+.hero{display:grid;grid-template-columns:minmax(150px,230px) 1fr;align-items:end;gap:4px 20px;background:var(--paper);border-radius:28px;padding:18px 24px 10px 10px}
+.hero-scene svg{display:block;width:100%;height:auto}
+.hero-text{padding-bottom:22px;min-width:0}
+.hero-label{font-family:var(--body);font-weight:700;font-size:17px;color:var(--ink-2)}
+.balance{font-family:var(--display);font-weight:600;margin:4px 0 14px;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+.balance .cur{font-size:26px;vertical-align:top;margin-right:4px;color:var(--fur-dark);position:relative;top:10px}
+.balance .whole{font-size:clamp(54px,11vw,84px);letter-spacing:-1px}
+.balance .cents{font-size:32px;color:var(--ink-2)}
+.next{display:inline-block;margin:0;background:var(--int-pale);color:var(--int);font-weight:700;border-radius:999px;padding:6px 14px;font-size:15px}
+.next.quiet{background:var(--paper-2);color:var(--ink-2)}
+
+.facts{display:grid;grid-template-columns:1fr 1fr;margin:18px 0 6px;gap:12px}
+.facts div{padding:2px 0 2px 14px;border-left:3px solid var(--rule-2)}
+.facts dt{font-size:14px;color:var(--ink-2)}
+.facts dd{margin:2px 0 0;font-family:var(--display);font-weight:500;font-size:22px}
+
+.panel{background:var(--paper);border-radius:20px;padding:18px 20px;margin-top:16px}
+.grow-line{font-size:17px}
+.grow-line strong{font-family:var(--display);font-weight:600;font-size:20px}
+.legend{display:flex;gap:18px;font-size:14px;color:var(--ink-2);margin:6px 0 4px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:14px;height:14px;border-radius:4px;display:inline-block}
+.sw-own{background:#EAD8C4;border:1.5px solid var(--fur)}
+.sw-int{background:#CFE3F1;border:1.5px solid var(--int)}
+.chart{width:100%}
+.chart svg{display:block}
+.explain{font-size:15px;color:var(--ink-2);margin:8px 0 0}
+
+.section-plain{margin-top:22px}
+.section-plain h2{margin-bottom:4px}
+.entries{list-style:none;margin:0;padding:0}
+.entry{display:grid;grid-template-columns:38px minmax(0,1fr) auto;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule-2)}
+.dot{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:600;font-size:19px}
+.dot-in{background:var(--in-pale);color:var(--in)}
+.dot-out{background:var(--out-pale);color:var(--out)}
+.dot-int{background:var(--int-pale);color:var(--int);font-size:16px}
+.e-note{display:block;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.e-date{display:block;font-size:14px;color:var(--ink-2)}
+.e-amt{font-family:var(--display);font-weight:500;font-size:19px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.amt-in{color:var(--in)} .amt-out{color:var(--out)} .amt-int{color:var(--int)}
+.link-btn{background:none;border:0;padding:12px 0;color:var(--pond);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.empty{padding:18px 0;color:var(--ink-2)}
+
+/* Passbook */
+.pb{background:var(--paper);border-radius:20px;overflow:hidden;font-variant-numeric:tabular-nums}
+.pb-top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding:18px 18px 14px;border-bottom:2px solid var(--ink)}
+.pb-top h2{margin:0}
+.pb-sub{margin:2px 0 0;color:var(--ink-2);font-size:15px}
+.pb-bal{text-align:right}
+.pb-bal span{display:block;font-size:14px;color:var(--ink-2)}
+.pb-bal strong{font-family:var(--display);font-weight:600;font-size:24px}
+.pb-cols{display:grid;grid-template-columns:5.6rem minmax(0,1fr) 6.2rem 6.2rem 6.9rem}
+.pb-head{font-size:13px;color:var(--ink-2);font-weight:700;background:var(--paper-2);border-bottom:1px solid var(--rule-2)}
+.pb-head>span,.pb-row>span{padding:10px}
+.pb-head>span+span,.pb-row>span+span{border-left:1px solid var(--rule)}
+.pb-month{font-family:var(--display);font-weight:500;font-size:17px;padding:16px 12px 6px;color:var(--ink-2);border-bottom:1px solid var(--rule)}
+.pb-row{border-bottom:1px solid var(--rule);font-family:var(--mono);font-size:15px;align-items:stretch}
+.pb-row .p{font-family:var(--body);font-size:16px;min-width:0;overflow-wrap:anywhere}
+.num{text-align:right}
+.pb-row .amt,.pb-head .amt{display:none}
+.pb-row .o{color:var(--out)} .pb-row .i{color:var(--in)}
+.pb-row.is-int{background:#F3F8FC}
+.pb-row.is-int .i{color:var(--int)}
+.stamp{display:inline-block;border:1.5px solid var(--int);color:var(--int);border-radius:6px;padding:0 6px;font-size:12px;font-weight:700;margin-right:6px;transform:rotate(-4deg);font-family:var(--body);line-height:1.5}
+.pb-row.is-cancelled .o,.pb-row.is-cancelled .i,.pb-row.is-cancelled .amt-v{text-decoration:line-through;color:var(--ink-3)}
+.pb-row.is-cancelled .note{color:var(--ink-3)}
+.tag{display:inline-block;font-family:var(--body);font-size:12px;font-weight:700;border-radius:999px;padding:1px 8px;margin-left:6px;background:var(--gold-pale);color:var(--gold-ink);vertical-align:1px}
+.tag-cancel{background:var(--out-pale);color:var(--out)}
+.pb-row[data-action]{cursor:pointer}
+.pb-row[data-action]:hover{background:var(--paper-2)}
+.pb-row .pencil{display:inline-block;width:16px;height:16px;margin-left:6px;vertical-align:-2px;color:var(--pond)}
+.pb-hist{padding:10px 14px 12px 5.6rem;font-size:14px;color:var(--ink-2);background:var(--paper-2);border-bottom:1px solid var(--rule)}
+.pb-hist ul{margin:0;padding-left:18px}
+.pb-hint{background:var(--gold-pale);color:var(--gold-ink);font-weight:700;font-size:15px;border-radius:14px;padding:10px 14px;margin-bottom:12px}
+.amt-b{display:block;font-size:12px;color:var(--ink-3)}
+@media (max-width:600px){
+  .pb-cols{grid-template-columns:3.9rem minmax(0,1fr) 6.6rem}
+  .pb-row .o,.pb-row .i,.pb-row .b,.pb-head .o,.pb-head .i,.pb-head .b{display:none}
+  .pb-row .amt,.pb-head .amt{display:block}
+  .pb-hist{padding-left:14px}
+  .pb-top{flex-direction:column;align-items:flex-start}
+  .pb-bal{text-align:left}
+}
+
+/* Banker */
+.lockbox{text-align:center;padding:26px 20px 28px}
+.lockbox p{color:var(--ink-2)}
+.pin-dots{display:flex;justify-content:center;gap:14px;margin:18px 0 8px}
+.pin-dots i{width:18px;height:18px;border-radius:50%;border:2px solid var(--ink-2);display:block}
+.pin-dots i.on{background:var(--ink);border-color:var(--ink)}
+.pin-msg{min-height:24px;color:var(--out);font-weight:700;font-size:15px;margin:0 0 8px}
+.keypad{display:grid;grid-template-columns:repeat(3,78px);gap:12px;justify-content:center}
+.keypad button{height:64px;border-radius:18px;border:0;background:var(--paper-2);font-family:var(--display);font-size:26px;font-weight:500;cursor:pointer;color:var(--ink)}
+.keypad button:active{background:var(--rule)}
+.keypad button.small{font-family:var(--body);font-size:15px;font-weight:700;color:var(--ink-2)}
+.keypad button:disabled{opacity:.45;cursor:default}
+.shake{animation:shake .35s}
+@keyframes shake{20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+
+.banker-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--gold-pale);color:var(--gold-ink);border-radius:16px;padding:12px 18px;font-weight:700;font-size:15px}
+.banner{background:var(--out-pale);color:var(--out);border-radius:16px;padding:12px 16px;font-weight:700;font-size:15px;margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.field{display:block;margin:14px 0 0;font-weight:700;font-size:15px}
+.field input{display:block;width:100%;margin-top:6px;padding:12px 14px;border:1.5px solid var(--rule-2);border-radius:12px;background:var(--paper);font-size:17px;font-weight:400;min-height:48px}
+.field input:focus{outline:none;border-color:var(--pond);box-shadow:0 0 0 3px var(--pond-pale)}
+.money{display:block;position:relative;margin-top:6px}
+.money .pre{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-weight:700;color:var(--ink-2);pointer-events:none}
+.field .money input{margin-top:0;padding-left:44px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--paper-2);border-radius:14px;padding:4px;gap:4px}
+.seg button{border:0;border-radius:10px;padding:10px;font-weight:700;background:transparent;cursor:pointer;color:var(--ink-2);min-height:44px}
+.seg button[aria-pressed="true"][data-type="in"]{background:var(--in-pale);color:var(--in)}
+.seg button[aria-pressed="true"][data-type="out"]{background:var(--out-pale);color:var(--out)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:10px 18px;border-radius:14px;border:1.5px solid var(--rule-2);background:var(--paper);font-weight:700;cursor:pointer;color:var(--ink);text-decoration:none}
+.btn:hover{background:var(--paper-2)}
+.btn.primary{background:var(--pond);border-color:var(--pond);color:#fff}
+.btn.primary:hover{background:var(--pond-2)}
+.btn.danger{border-color:var(--out);color:var(--out)}
+.btn.wide{width:100%;margin-top:16px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.form-err{color:var(--out);font-weight:700;font-size:15px;margin:10px 0 0}
+.form-err:empty{display:none}
+.hint{font-size:14px;color:var(--ink-2);margin:12px 0 0}
+.rate-now{font-family:var(--display);font-weight:500;font-size:20px;margin:0 0 4px}
+.inline-form{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.inline-form .field{flex:1;min-width:150px}
+
+dialog{border:0;border-radius:22px;padding:22px;max-width:460px;width:calc(100% - 32px);color:var(--ink);background:var(--paper)}
+dialog::backdrop{background:rgba(29,38,30,.5)}
+dialog h2{margin-bottom:12px}
+.dlg-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;align-items:center}
+.dlg-actions .spacer{flex:1}
+.dlg-note{background:var(--out-pale);color:var(--out);font-weight:700;font-size:15px;border-radius:12px;padding:10px 12px;margin:0 0 6px}
+
+.toast{position:fixed;left:50%;bottom:calc(var(--tabs-h) + 16px + env(safe-area-inset-bottom));transform:translate(-50%,16px);opacity:0;background:var(--ink);color:#fff;padding:12px 18px;border-radius:14px;max-width:min(92vw,520px);transition:opacity .2s,transform .2s;pointer-events:none;z-index:60;font-weight:700;font-size:15px;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* Setup */
+.setup{max-width:520px;margin:0 auto;padding:28px 16px 48px}
+.setup-head{text-align:center;margin-bottom:18px}
+.setup-head svg{width:120px;height:120px}
+.setup-head h1{font-size:30px;margin-top:8px}
+.setup-head p{color:var(--ink-2);margin-top:6px}
+.opt{color:var(--ink-3);font-weight:400}
+
+/* The one orchestrated moment: coins stack up when the app opens */
+.coin,.capy-anim{transform-box:fill-box}
+.scene.animate .coin{animation:drop .5s cubic-bezier(.3,1.35,.5,1) both;animation-delay:calc(var(--i) * 90ms)}
+.scene.animate .capy-anim{animation:peek .55s ease-out both;animation-delay:calc(var(--n) * 90ms + 150ms)}
+@keyframes drop{from{transform:translateY(-80px);opacity:0}50%{opacity:1}to{transform:none;opacity:1}}
+@keyframes peek{from{transform:translateY(18px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.scene.animate .coin,.scene.animate .capy-anim,.shake{animation:none}.toast{transition:none}}
+
+@media (max-width:520px){
+  .hero{grid-template-columns:1fr;text-align:center;padding:12px 16px 22px}
+  .hero-scene{width:170px;margin:0 auto}
+  .hero-text{padding:0}
+  .row2{grid-template-columns:1fr}
+  .keypad{grid-template-columns:repeat(3,72px)}
+}
+</style>
+</head>
+<body>
+
+<div id="setup" class="setup" hidden></div>
+
+<div id="app" class="app" hidden>
+  <header class="top">
+    <div class="brand"><span id="logo-slot"></span><span class="brand-name">CapyBank</span></div>
+    <div id="top-right"></div>
+  </header>
+  <main>
+    <section id="view-summary" aria-label="Summary"></section>
+    <section id="view-passbook" aria-label="Passbook" hidden></section>
+    <section id="view-banker" aria-label="Banker" hidden></section>
+  </main>
+</div>
+
+<nav class="tabs" id="tabs" aria-label="Sections" hidden>
+  <button type="button" data-action="tab" data-tab="summary" aria-current="page">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg>
+    <span>Summary</span>
+  </button>
+  <button type="button" data-action="tab" data-tab="passbook">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4.5h11.5a2 2 0 0 1 2 2V20H7a2 2 0 0 1-2-2z"/><path d="M5 18a2 2 0 0 1 2-2h11.5"/><path d="M9 8.5h6M9 11.5h4"/></svg>
+    <span>Passbook</span>
+  </button>
+  <button type="button" data-action="tab" data-tab="banker">
+    <span id="banker-icon"></span>
+    <span>Banker</span>
+  </button>
+</nav>
+
+<dialog id="edit-dlg" aria-labelledby="edit-title">
+  <form id="edit-form" novalidate>
+    <h2 id="edit-title">Change entry</h2>
+    <p class="dlg-note" id="edit-cancelled-note" hidden>This entry is cancelled. Restore it to count it again.</p>
+    <div class="seg" role="group" aria-label="Entry type">
+      <button type="button" data-action="edittype" data-type="in">Money in</button>
+      <button type="button" data-action="edittype" data-type="out">Money out</button>
+    </div>
+    <div class="row2">
+      <label class="field">Amount<span class="money"><span class="pre">S$</span><input id="edit-amount" inputmode="decimal" autocomplete="off"></span></label>
+      <label class="field">Date<input id="edit-date" type="date"></label>
+    </div>
+    <label class="field">Note<input id="edit-note" maxlength="60" autocomplete="off"></label>
+    <p class="form-err" id="edit-err" role="alert"></p>
+    <div class="dlg-actions">
+      <button type="button" class="btn danger" data-action="cancel-entry" id="btn-cancel-entry">Cancel entry</button>
+      <button type="button" class="btn" data-action="restore-entry" id="btn-restore-entry">Restore entry</button>
+      <span class="spacer"></span>
+      <button type="button" class="btn" data-action="close-dlg">Close</button>
+      <button type="submit" class="btn primary" id="btn-save-edit">Save changes</button>
+    </div>
+  </form>
+</dialog>
+
+<input type="file" id="restore-file" accept=".txt,.json,text/plain,application/json" hidden>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+'use strict';
+
+const KEY = 'capybank.v1';
+const LOCK_KEY = 'capybank.pinlock';
+const AUTO_LOCK_MS = 3 * 60 * 1000;
+const MAX_CENTS = 100000000; // S$1,000,000
+
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+let state = null;
+let unlocked = false;
+let view = 'summary';
+let autoLockTimer = null;
+let didAnimate = false;
+let addType = 'in';
+let editId = null;
+let editType = 'in';
+let pinEntry = '';
+let lockTick = null;
+let lastPts = null;
+let restoreSource = 'banker';
+const expanded = new Set();
+
+/* ---------- Art ---------- */
+const CAPY = `<circle cx="41" cy="31" r="7" fill="#7A4E26"/><circle cx="79" cy="31" r="7" fill="#7A4E26"/>
+<rect x="34" y="28" width="52" height="64" rx="24" fill="#B07A45"/>
+<ellipse cx="60" cy="80" rx="21" ry="12" fill="#8E5C30"/>
+<ellipse cx="53" cy="76" rx="3" ry="2" fill="#3A2412"/><ellipse cx="67" cy="76" rx="3" ry="2" fill="#3A2412"/>
+<path d="M55 85 Q60 88 65 85" stroke="#3A2412" stroke-width="2" fill="none" stroke-linecap="round"/>
+<circle cx="47" cy="54" r="3" fill="#2A1A0C"/><circle cx="73" cy="54" r="3" fill="#2A1A0C"/>`;
+
+const LOGO = `<svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="56" fill="#FAEEDA"/><g transform="translate(0 -6)">${CAPY}</g><rect x="33" y="86" width="54" height="9" rx="4.5" fill="#EF9F27" stroke="#BA7517"/><rect x="36" y="96" width="48" height="9" rx="4.5" fill="#EF9F27" stroke="#BA7517"/></svg>`;
+
+const ICON_LOCK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>`;
+const ICON_UNLOCK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 7.6-1.7"/></svg>`;
+const ICON_PENCIL = `<svg class="pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>`;
+
+function coinCount(bal) {
+  if (bal <= 0) return 0;
+  return Math.min(8, 1 + Math.floor(Math.log2(bal / 2000 + 1)));
+}
+function sceneSVG(n, animate) {
+  const offs = [0, -3, 2, -1, 3, -2, 1, -3];
+  let coins = '';
+  for (let i = 0; i < n; i++) {
+    const y = 196 - (i + 1) * 12, x = 74 + offs[i];
+    coins += `<g class="coin" style="--i:${i}"><rect x="${x}" y="${y}" width="72" height="13" rx="6.5" fill="#EF9F27" stroke="#BA7517" stroke-width="1.5"/><path d="M${x + 12} ${y + 4.5}H${x + 60}" stroke="#F8C978" stroke-width="1.5" stroke-linecap="round"/></g>`;
+  }
+  const s = 1.15;
+  const headBottom = n ? 196 - n * 12 + 3 : 194;
+  const tx = 110 - 60 * s, ty = headBottom - 92 * s;
+  const label = n ? `A capybara sitting on a stack of ${n} gold coin${n === 1 ? '' : 's'}` : 'A capybara waiting for its first coin';
+  return `<svg class="scene${animate ? ' animate' : ''}" viewBox="0 0 220 220" role="img" aria-label="${label}"><ellipse cx="110" cy="204" rx="96" ry="12" fill="#CFE0C3"/><g class="capy-anim" style="--n:${n}"><g transform="translate(${tx.toFixed(1)} ${ty.toFixed(1)}) scale(${s})">${CAPY}</g></g>${coins}</svg>`;
+}
+
+/* ---------- Storage ---------- */
+function load() {
+  try { const raw = localStorage.getItem(KEY); return raw ? JSON.parse(raw) : null; }
+  catch (e) { return null; }
+}
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(state)); return true; }
+  catch (e) { toast("This tablet couldn't save the change. Make sure Chrome isn't in incognito mode."); return false; }
+}
+function requestPersist() {
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+}
+
+/* ---------- Dates ---------- */
+const pad = n => String(n).padStart(2, '0');
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONTH = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+function todayStr() { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
+function nextFirst(ds) { let y = +ds.slice(0, 4), m = +ds.slice(5, 7) + 1; if (m > 12) { m = 1; y++; } return `${y}-${pad(m)}-01`; }
+function fmtDate(ds) { return `${+ds.slice(8, 10)} ${MON[+ds.slice(5, 7) - 1]} ${ds.slice(0, 4)}`; }
+function fmtDay(ds) { return `${ds.slice(8, 10)} ${MON[+ds.slice(5, 7) - 1]}`; }
+function fmtShort(ds) { return `${+ds.slice(8, 10)} ${MON[+ds.slice(5, 7) - 1]}`; }
+function fmtMonth(ym) { return `${MONTH[+ym.slice(5, 7) - 1]} ${ym.slice(0, 4)}`; }
+function isoDay(iso) { const d = new Date(iso); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
+const validDate = ds => /^\d{4}-\d{2}-\d{2}$/.test(ds || '');
+
+/* ---------- Money ---------- */
+function num(c) { return (Math.abs(c) / 100).toLocaleString('en-SG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+function fmt(c) { return (c < 0 ? '−' : '') + 'S$' + num(c); }
+function parseAmount(str) {
+  const s = String(str || '').replace(/[,\s]/g, '').replace(/^s?\$/i, '');
+  if (!/^\d+(\.\d{1,2})?$/.test(s)) return null;
+  const [w, f = ''] = s.split('.');
+  return parseInt(w, 10) * 100 + parseInt((f + '00').slice(0, 2), 10);
+}
+function pctText(p) { return `${+p.toFixed(2)}%`; }
+const poss = name => /s$/i.test(name) ? `${name}’` : `${name}’s`;
+
+/* ---------- Interest engine ----------
+   Only deposits and withdrawals are stored. Interest is worked out every time:
+   on the 1st of each month, add rate% of the balance at the end of the previous month. */
+function rateOn(postDate) {
+  let r = state.rates[0].pct;
+  for (const x of state.rates) if (x.from <= postDate) r = x.pct;
+  return r;
+}
+function byDate(a, b) {
+  if (a.date !== b.date) return a.date < b.date ? -1 : 1;
+  return a.createdAt < b.createdAt ? -1 : a.createdAt > b.createdAt ? 1 : 0;
+}
+function compute(txns, today = todayStr()) {
+  const active = txns.filter(t => !t.cancelled).sort(byDate);
+  const rows = [];
+  let bal = 0, interest = 0, firstNeg = null;
+  if (active.length) {
+    let i = 0, post = nextFirst(active[0].date);
+    const take = () => {
+      const t = active[i++];
+      bal += t.type === 'in' ? t.amount : -t.amount;
+      if (bal < 0 && !firstNeg) firstNeg = t.date;
+      rows.push({ kind: 'txn', t, date: t.date, balance: bal });
+    };
+    while (post <= today) {
+      while (i < active.length && active[i].date < post) take();
+      const rate = rateOn(post);
+      const amt = Math.round(bal * rate / 100);
+      if (amt > 0) { const base = bal; bal += amt; interest += amt; rows.push({ kind: 'int', date: post, amount: amt, rate, base, balance: bal }); }
+      post = nextFirst(post);
+    }
+    while (i < active.length) take();
+  }
+  return { rows, balance: bal, interest, firstNeg };
+}
+function displayRows(L) {
+  const all = L.rows.slice();
+  for (const t of state.txns) if (t.cancelled) all.push({ kind: 'txn', t, date: t.date, balance: null });
+  all.sort((a, b) => {
+    if (a.date !== b.date) return a.date < b.date ? -1 : 1;
+    if (a.kind !== b.kind) return a.kind === 'int' ? -1 : 1;
+    if (a.kind === 'txn') return a.t.createdAt < b.t.createdAt ? -1 : 1;
+    return 0;
+  });
+  return all;
+}
+function projection(bal, today) {
+  const pts = [{ date: today, bal }];
+  let b = bal, post = nextFirst(today);
+  for (let k = 0; k < 12; k++) {
+    b += Math.max(0, Math.round(b * rateOn(post) / 100));
+    pts.push({ date: post, bal: b });
+    post = nextFirst(post);
+  }
+  return pts;
+}
+
+/* ---------- PIN ---------- */
+function randHex(n) { const a = new Uint8Array(n); crypto.getRandomValues(a); return [...a].map(x => x.toString(16).padStart(2, '0')).join(''); }
+function cyrb(str) {
+  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+  for (let i = 0; i < str.length; i++) { const ch = str.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return (h2 >>> 0).toString(16) + (h1 >>> 0).toString(16);
+}
+async function hashPin(pin, salt, algo) {
+  const text = `${salt}:${pin}`;
+  if (algo === 'sha256') {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+    return [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2, '0')).join('');
+  }
+  return cyrb(text);
+}
+async function makePin(pin) {
+  const salt = randHex(16);
+  const algo = (window.crypto && crypto.subtle) ? 'sha256' : 'cyrb';
+  return { salt, algo, len: pin.length, hash: await hashPin(pin, salt, algo) };
+}
+async function checkPin(pin) {
+  const p = state.pin;
+  try { return (await hashPin(pin, p.salt, p.algo || 'sha256')) === p.hash; } catch (e) { return false; }
+}
+function lockInfo() { try { return JSON.parse(localStorage.getItem(LOCK_KEY)) || { fails: 0, until: 0 }; } catch (e) { return { fails: 0, until: 0 }; } }
+function setLockInfo(v) { try { localStorage.setItem(LOCK_KEY, JSON.stringify(v)); } catch (e) {} }
+
+/* ---------- Toast ---------- */
+let toastTimer = null;
+function toast(msg) {
+  const t = $('#toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+/* ---------- Rendering ---------- */
+function render() {
+  $('#setup').hidden = true;
+  $('#app').hidden = false;
+  $('#tabs').hidden = false;
+  $('#logo-slot').innerHTML = LOGO;
+  $('#banker-icon').innerHTML = unlocked ? ICON_UNLOCK : ICON_LOCK;
+  $('#top-right').innerHTML = unlocked
+    ? `<span class="chip-banker">Banker mode<button type="button" data-action="lock">Lock</button></span>`
+    : `<span class="holder">${esc(poss(state.holder))} account</span>`;
+  for (const b of document.querySelectorAll('#tabs button')) {
+    if (b.dataset.tab === view) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+  }
+  for (const v of ['summary', 'passbook', 'banker']) $(`#view-${v}`).hidden = v !== view;
+  if (view === 'summary') renderSummary();
+  else if (view === 'passbook') renderPassbook();
+  else renderBanker();
+}
+
+function entryLine(r) {
+  if (r.kind === 'int') {
+    return `<li class="entry"><span class="dot dot-int" aria-hidden="true">%</span><span><span class="e-note">Interest</span><span class="e-date">${fmtDate(r.date)}</span></span><span class="e-amt amt-int">+${fmt(r.amount)}</span></li>`;
+  }
+  const t = r.t, isIn = t.type === 'in';
+  const note = t.note || (isIn ? 'Money in' : 'Money out');
+  return `<li class="entry"><span class="dot ${isIn ? 'dot-in' : 'dot-out'}" aria-hidden="true">${isIn ? '+' : '−'}</span><span><span class="e-note">${esc(note)}</span><span class="e-date">${fmtDate(t.date)}</span></span><span class="e-amt ${isIn ? 'amt-in' : 'amt-out'}">${isIn ? '+' : '−'}${fmt(t.amount)}</span></li>`;
+}
+
+function renderSummary() {
+  const el = $('#view-summary');
+  const today = todayStr();
+  const L = compute(state.txns, today);
+  const bal = L.balance;
+  const post = nextFirst(today);
+  const nextAmt = Math.max(0, Math.round(bal * rateOn(post) / 100));
+  const active = state.txns.filter(t => !t.cancelled);
+  const since = active.length ? active.reduce((m, t) => t.date < m ? t.date : m, active[0].date) : null;
+  const [whole, cents] = num(bal).split('.');
+  const animate = !didAnimate; didAnimate = true;
+  const pts = bal > 0 ? projection(bal, today) : null;
+  lastPts = pts;
+  const end = pts ? pts[pts.length - 1] : null;
+  const latest = displayRows(L).filter(r => !(r.kind === 'txn' && r.t.cancelled)).reverse().slice(0, 4);
+
+  el.innerHTML = `
+  <section class="hero">
+    <div class="hero-scene">${sceneSVG(coinCount(bal), animate)}</div>
+    <div class="hero-text">
+      <h1 class="hero-label">${esc(poss(state.holder))} savings</h1>
+      <p class="balance" aria-label="${fmt(bal)}"><span class="cur" aria-hidden="true">S$</span><span class="whole" aria-hidden="true">${whole}</span><span class="cents" aria-hidden="true">.${cents}</span></p>
+      ${bal > 0
+        ? `<p class="next">+${fmt(nextAmt)} interest on ${fmtShort(post)}</p>`
+        : `<p class="next quiet">Interest starts once there’s money in the bank.</p>`}
+    </div>
+  </section>
+  <dl class="facts">
+    <div><dt>Interest earned so far</dt><dd>${fmt(L.interest)}</dd></div>
+    <div><dt>Saving since</dt><dd>${since ? fmtDate(since) : 'Not yet'}</dd></div>
+  </dl>
+  <section class="panel">
+    <h2>If you don’t spend anything</h2>
+    ${pts ? `
+      <p class="grow-line">On ${fmtDate(end.date)} you’d have <strong>${fmt(end.bal)}</strong>. That’s ${fmt(end.bal - bal)} more, all from interest.</p>
+      <div class="legend"><span><i class="sw sw-own"></i>Your money</span><span><i class="sw sw-int"></i>Interest</span></div>
+      <div class="chart" id="growth-chart"></div>
+      <p class="explain">On the 1st of every month, CapyBank adds ${pctText(rateOn(post))} of your savings. Interest earns interest too, so it grows a little faster each month.</p>`
+    : `<p class="explain">Once there’s money in the bank, you’ll see here how it grows.</p>`}
+  </section>
+  <section class="section-plain">
+    <h2>Latest entries</h2>
+    ${latest.length ? `<ul class="entries">${latest.map(entryLine).join('')}</ul>
+      <button type="button" class="link-btn" data-action="tab" data-tab="passbook">Open the passbook</button>`
+    : `<p class="empty">No entries yet. The banker adds the first one.</p>`}
+  </section>`;
+  if (pts) drawChart();
+}
+
+function drawChart() {
+  const box = $('#growth-chart');
+  if (!box || !lastPts) return;
+  const pts = lastPts;
+  const W = Math.max(260, Math.round(box.clientWidth || 600));
+  const H = Math.round(Math.min(220, Math.max(170, W * 0.3)));
+  const padL = 6, padR = 6, padT = 36, padB = 30;
+  const base = pts[0].bal, last = pts[pts.length - 1];
+  const max = last.bal * 1.06;
+  const n = pts.length - 1;
+  const x = i => padL + (W - padL - padR) * i / n;
+  const y = v => padT + (H - padT - padB) * (1 - v / max);
+  const y0 = y(0), yb = y(base);
+  const top = pts.map((p, i) => `${x(i).toFixed(1)},${y(p.bal).toFixed(1)}`).join(' ');
+  const every = W < 420 ? 3 : W < 600 ? 2 : 1;
+  let labels = '';
+  pts.forEach((p, i) => {
+    if (i !== 0 && i !== n && i % every) return;
+    const t = i === 0 ? 'Now' : MON[+p.date.slice(5, 7) - 1];
+    const anchor = i === 0 ? 'start' : i === n ? 'end' : 'middle';
+    labels += `<text x="${x(i).toFixed(1)}" y="${H - 8}" text-anchor="${anchor}" font-size="13" fill="#5E4A3B" font-family="Atkinson Hyperlegible, system-ui, sans-serif">${t}</text>`;
+  });
+  const dots = pts.map((p, i) => `<circle cx="${x(i).toFixed(1)}" cy="${y(p.bal).toFixed(1)}" r="${i === n ? 5.5 : 3.2}" fill="${i === n ? '#22608A' : '#fff'}" stroke="#22608A" stroke-width="2"/>`).join('');
+  box.innerHTML = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Savings growing from ${fmt(base)} now to ${fmt(last.bal)} on ${fmtDate(last.date)}">
+    <rect x="${x(0)}" y="${yb.toFixed(1)}" width="${(x(n) - x(0)).toFixed(1)}" height="${(y0 - yb).toFixed(1)}" fill="#EAD8C4"/>
+    <line x1="${x(0)}" y1="${yb.toFixed(1)}" x2="${x(n)}" y2="${yb.toFixed(1)}" stroke="#B07A45" stroke-width="1.5"/>
+    <polygon points="${top} ${x(n).toFixed(1)},${yb.toFixed(1)} ${x(0).toFixed(1)},${yb.toFixed(1)}" fill="#CFE3F1"/>
+    <polyline points="${top}" fill="none" stroke="#22608A" stroke-width="2.5" stroke-linejoin="round"/>
+    <line x1="${x(0)}" y1="${y0.toFixed(1)}" x2="${x(n)}" y2="${y0.toFixed(1)}" stroke="#C7D3C4" stroke-width="1"/>
+    ${dots}
+    <text x="${x(0) + 2}" y="${(yb - 12).toFixed(1)}" font-size="14" font-weight="700" fill="#5E4A3B" font-family="Atkinson Hyperlegible, system-ui, sans-serif">${fmt(base)}</text>
+    <text x="${x(n) - 2}" y="${(y(last.bal) - 13).toFixed(1)}" text-anchor="end" font-size="15" font-weight="700" fill="#22608A" font-family="Atkinson Hyperlegible, system-ui, sans-serif">${fmt(last.bal)}</text>
+    ${labels}
+  </svg>`;
+}
+
+function renderPassbook() {
+  const el = $('#view-passbook');
+  const L = compute(state.txns);
+  const rows = displayRows(L).reverse();
+  let body = '';
+  if (!rows.length) {
+    body = `<p class="empty" style="padding:18px">No entries yet. The banker adds the first one.</p>`;
+  } else {
+    let month = '';
+    for (const r of rows) {
+      const ym = r.date.slice(0, 7);
+      if (ym !== month) { month = ym; body += `<div class="pb-month">${fmtMonth(ym)}</div>`; }
+      body += pbRow(r);
+    }
+  }
+  el.innerHTML = `
+    ${unlocked ? `<p class="pb-hint">Banker mode: tap an entry to change or cancel it.</p>` : ''}
+    <div class="pb">
+      <div class="pb-top">
+        <div><h2>Passbook</h2><p class="pb-sub">Savings account of ${esc(state.holder)}</p></div>
+        <div class="pb-bal"><span>Balance</span><strong>${fmt(L.balance)}</strong></div>
+      </div>
+      <div class="pb-cols pb-head" aria-hidden="true"><span>Date</span><span>Details</span><span class="num o">Out</span><span class="num i">In</span><span class="num b">Balance</span><span class="num amt">Amount</span></div>
+      ${body}
+    </div>`;
+}
+
+function pbRow(r) {
+  if (r.kind === 'int') {
+    return `<div class="pb-cols pb-row is-int"><span class="d">${fmtDay(r.date)}</span><span class="p"><span class="stamp">Interest</span>${pctText(r.rate)} of ${fmt(r.base)}</span><span class="num o"></span><span class="num i">${num(r.amount)}</span><span class="num b">${num(r.balance)}</span><span class="num amt"><span class="amt-v amt-int">+${num(r.amount)}</span><span class="amt-b">${num(r.balance)}</span></span></div>`;
+  }
+  const t = r.t, isIn = t.type === 'in';
+  const edited = (t.history || []).some(h => h.action === 'edited');
+  const clickable = unlocked || (t.history && t.history.length);
+  const note = t.note || (isIn ? 'Money in' : 'Money out');
+  const tags = (t.cancelled ? `<span class="tag tag-cancel">cancelled</span>` : '') + (edited ? `<span class="tag">edited</span>` : '');
+  const cls = `pb-cols pb-row${t.cancelled ? ' is-cancelled' : ''}`;
+  const attrs = clickable ? ` data-action="row" data-id="${t.id}" role="button" tabindex="0" aria-label="${esc(note)}, ${fmtDate(t.date)}${unlocked ? ', change' : ', show changes'}"` : '';
+  let html = `<div class="${cls}"${attrs}><span class="d">${fmtDay(t.date)}</span><span class="p"><span class="note">${esc(note)}</span>${tags}${unlocked ? ICON_PENCIL : ''}</span><span class="num o">${isIn ? '' : num(t.amount)}</span><span class="num i">${isIn ? num(t.amount) : ''}</span><span class="num b">${r.balance == null ? '' : num(r.balance)}</span><span class="num amt"><span class="amt-v ${isIn ? 'amt-in' : 'amt-out'}">${isIn ? '+' : '−'}${num(t.amount)}</span>${r.balance == null ? '' : `<span class="amt-b">${num(r.balance)}</span>`}</span></div>`;
+  if (!unlocked && expanded.has(t.id) && t.history && t.history.length) html += historyHTML(t);
+  return html;
+}
+
+function historyHTML(t) {
+  const items = t.history.map(h => {
+    const when = fmtDate(isoDay(h.at));
+    if (h.action === 'cancelled') return `<li>Cancelled on ${when}.</li>`;
+    if (h.action === 'restored') return `<li>Restored on ${when}.</li>`;
+    const p = h.prev;
+    return `<li>Changed on ${when}. Before: ${p.type === 'in' ? 'money in' : 'money out'} ${fmt(p.amount)} on ${fmtDate(p.date)}${p.note ? `, “${esc(p.note)}”` : ''}.</li>`;
+  }).join('');
+  return `<div class="pb-hist"><ul>${items}</ul></div>`;
+}
+
+function renderBanker() {
+  const el = $('#view-banker');
+  if (!unlocked) {
+    el.innerHTML = `
+    <section class="panel lockbox">
+      <h2>Banker only</h2>
+      <p>Enter the banker PIN to add or change entries.</p>
+      <div class="pin-dots" id="pin-dots" aria-hidden="true"></div>
+      <p class="pin-msg" id="pin-msg" role="alert"></p>
+      <div class="keypad" id="keypad">
+        ${[1,2,3,4,5,6,7,8,9].map(d => `<button type="button" data-action="key" data-k="${d}">${d}</button>`).join('')}
+        <button type="button" class="small" data-action="key" data-k="clear">Clear</button>
+        <button type="button" data-action="key" data-k="0">0</button>
+        <button type="button" class="small" data-action="key" data-k="back" aria-label="Delete last digit">Back</button>
+      </div>
+    </section>`;
+    updateDots();
+    updateLockout();
+    return;
+  }
+  const today = todayStr();
+  const nowRate = rateOn(today);
+  const future = state.rates.filter(r => r.from > today);
+  const lb = state.lastBackupAt;
+  const daysSince = lb ? Math.floor((Date.now() - new Date(lb).getTime()) / 86400000) : null;
+  const needBackup = state.txns.length && (daysSince === null || daysSince >= 30);
+
+  el.innerHTML = `
+  <div class="banker-bar"><span>Banker mode is on. Tap Lock at the top before handing the tablet back.</span></div>
+  ${needBackup ? `<div class="banner"><span>${lb ? `Last backup was ${daysSince} days ago.` : 'There’s no backup yet.'}</span><button type="button" class="btn" data-action="backup">Back up now</button></div>` : ''}
+
+  <section class="panel">
+    <h2>Add an entry</h2>
+    <form id="add-form" novalidate>
+      <div class="seg" role="group" aria-label="Entry type">
+        <button type="button" data-action="addtype" data-type="in" aria-pressed="${addType === 'in'}">Money in</button>
+        <button type="button" data-action="addtype" data-type="out" aria-pressed="${addType === 'out'}">Money out</button>
+      </div>
+      <div class="row2">
+        <label class="field">Amount<span class="money"><span class="pre">S$</span><input id="add-amount" inputmode="decimal" autocomplete="off" placeholder="10.00"></span></label>
+        <label class="field">Date<input id="add-date" type="date" value="${today}" max="${today}"></label>
+      </div>
+      <label class="field">Note<input id="add-note" maxlength="60" autocomplete="off" placeholder="${addType === 'in' ? 'Birthday money from Grandma' : 'Book fair'}"></label>
+      <p class="form-err" id="add-err" role="alert"></p>
+      <button type="submit" class="btn primary wide" id="add-submit">${addType === 'in' ? 'Add money in' : 'Take money out'}</button>
+    </form>
+    <p class="hint">Pick an earlier date to add something you forgot. To change or cancel an entry, tap it in the passbook.</p>
+  </section>
+
+  <section class="panel">
+    <h2>Interest</h2>
+    <p class="rate-now">${pctText(nowRate)} a month, paid on the 1st</p>
+    ${future.map(r => `<p class="hint" style="margin-top:0">From ${fmtDate(r.from)}: ${pctText(r.pct)} a month.</p>`).join('')}
+    <form id="rate-form" class="inline-form" novalidate>
+      <label class="field">New rate (% a month)<input id="rate-input" inputmode="decimal" autocomplete="off" value="${+(future.length ? future[future.length - 1].pct : nowRate).toFixed(2)}"></label>
+      <button type="submit" class="btn">Save rate</button>
+    </form>
+    <p class="form-err" id="rate-err" role="alert"></p>
+    <p class="hint">A new rate starts on ${fmtDate(nextFirst(today))}. Interest already paid stays the same.</p>
+  </section>
+
+  <section class="panel">
+    <h2>Backup</h2>
+    <p>${lb ? `Last backup: ${fmtDate(isoDay(lb))}.` : 'No backup yet.'} Everything lives only on this tablet, so a backup is the only spare copy.</p>
+    <div class="actions">
+      <button type="button" class="btn primary" data-action="backup">Back up now</button>
+      <button type="button" class="btn" data-action="pick-restore">Restore from backup</button>
+    </div>
+    <p class="hint">Back up opens the share menu so you can email the file to yourself. Restore replaces everything on this tablet with the backup.</p>
+  </section>
+
+  <section class="panel">
+    <h2>Account</h2>
+    <form id="holder-form" class="inline-form" novalidate>
+      <label class="field">Account holder’s name<input id="holder-input" maxlength="30" autocomplete="off" value="${esc(state.holder)}"></label>
+      <button type="submit" class="btn">Save name</button>
+    </form>
+    <p class="form-err" id="holder-err" role="alert"></p>
+    <form id="pin-form" novalidate>
+      <div class="row2" style="margin-top:6px">
+        <label class="field">Current PIN<input id="pin-cur" type="password" inputmode="numeric" autocomplete="off" maxlength="6"></label>
+        <span></span>
+        <label class="field">New PIN (4 to 6 digits)<input id="pin-new" type="password" inputmode="numeric" autocomplete="new-password" maxlength="6"></label>
+        <label class="field">New PIN again<input id="pin-new2" type="password" inputmode="numeric" autocomplete="new-password" maxlength="6"></label>
+      </div>
+      <p class="form-err" id="pin-err" role="alert"></p>
+      <button type="submit" class="btn" style="margin-top:14px">Change PIN</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>Start over</h2>
+    <p>Erase every entry and the PIN from this tablet. Back up first if you might want them again.</p>
+    <button type="button" class="btn danger" data-action="erase">Erase everything</button>
+  </section>`;
+}
+
+/* ---------- PIN pad ---------- */
+function updateDots() {
+  const d = $('#pin-dots'); if (!d) return;
+  let h = '';
+  for (let i = 0; i < state.pin.len; i++) h += `<i class="${i < pinEntry.length ? 'on' : ''}"></i>`;
+  d.innerHTML = h;
+}
+function updateLockout() {
+  const msg = $('#pin-msg'); if (!msg) return;
+  const info = lockInfo();
+  const left = Math.ceil((info.until - Date.now()) / 1000);
+  const keys = document.querySelectorAll('#keypad button');
+  if (left > 0) {
+    msg.textContent = `Too many tries. Wait ${left} seconds.`;
+    keys.forEach(k => k.disabled = true);
+    clearTimeout(lockTick);
+    lockTick = setTimeout(updateLockout, 1000);
+  } else {
+    if (msg.textContent.startsWith('Too many')) msg.textContent = '';
+    keys.forEach(k => k.disabled = false);
+  }
+}
+let checking = false;
+async function pressKey(k) {
+  if (checking || unlocked) return;
+  if (lockInfo().until > Date.now()) return;
+  if (k === 'clear') pinEntry = '';
+  else if (k === 'back') pinEntry = pinEntry.slice(0, -1);
+  else if (pinEntry.length < state.pin.len) pinEntry += k;
+  updateDots();
+  if (pinEntry.length === state.pin.len) {
+    checking = true;
+    const ok = await checkPin(pinEntry);
+    checking = false;
+    if (ok) { setLockInfo({ fails: 0, until: 0 }); pinEntry = ''; unlock(); return; }
+    const info = lockInfo(); info.fails = (info.fails || 0) + 1;
+    pinEntry = '';
+    const msg = $('#pin-msg');
+    if (info.fails >= 3) { info.fails = 0; info.until = Date.now() + 30000; }
+    setLockInfo(info);
+    if (msg) msg.textContent = 'That PIN didn’t match. Try again.';
+    const box = $('#pin-dots');
+    if (box) { box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake'); }
+    setTimeout(() => { updateDots(); updateLockout(); }, 350);
+  }
+}
+
+/* ---------- Banker mode ---------- */
+function unlock() {
+  unlocked = true;
+  resetAutoLock();
+  render();
+  toast('Banker mode is on.');
+}
+function lock(silent) {
+  if (!unlocked) return;
+  unlocked = false;
+  clearTimeout(autoLockTimer);
+  const dlg = $('#edit-dlg'); if (dlg.open) dlg.close();
+  render();
+  if (!silent) toast('Locked. Banker mode is off.');
+}
+function resetAutoLock() {
+  clearTimeout(autoLockTimer);
+  if (unlocked) autoLockTimer = setTimeout(() => lock(), AUTO_LOCK_MS);
+}
+
+/* ---------- Entries ---------- */
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+function checkFields(amountStr, date) {
+  const amount = parseAmount(amountStr);
+  if (amount === null || amount <= 0) return { err: 'Enter an amount like 5 or 12.50.' };
+  if (amount > MAX_CENTS) return { err: 'That’s more than S$1,000,000. Check the amount.' };
+  if (!validDate(date)) return { err: 'Pick a date.' };
+  if (date > todayStr()) return { err: 'Entries can’t be in the future. Pick today or an earlier date.' };
+  return { amount };
+}
+function negativeErr(day) {
+  return `That would take ${poss(state.holder)} balance below zero on ${fmtDate(day)}. Check the amount or the date.`;
+}
+const touchesInterest = date => nextFirst(date) <= todayStr();
+
+function addEntry() {
+  const err = $('#add-err');
+  const date = $('#add-date').value;
+  const note = $('#add-note').value.trim();
+  const v = checkFields($('#add-amount').value, date);
+  if (v.err) { err.textContent = v.err; return; }
+  const t = { id: uid(), type: addType, amount: v.amount, date, note, createdAt: new Date().toISOString(), history: [] };
+  const neg = compute([...state.txns, t]).firstNeg;
+  if (neg) { err.textContent = negativeErr(neg); return; }
+  state.txns.push(t);
+  if (!save()) { state.txns.pop(); return; }
+  const verb = addType === 'in' ? 'Added' : 'Took out';
+  toast(`${verb} ${fmt(v.amount)} on ${fmtShort(date)}.${touchesInterest(date) ? ' Interest recalculated.' : ''}`);
+  render();
+}
+
+function openEdit(id) {
+  const t = state.txns.find(x => x.id === id); if (!t) return;
+  editId = id; editType = t.type;
+  $('#edit-amount').value = num(t.amount).replace(/,/g, '');
+  $('#edit-date').value = t.date;
+  $('#edit-date').max = todayStr();
+  $('#edit-note').value = t.note || '';
+  $('#edit-err').textContent = '';
+  const c = !!t.cancelled;
+  $('#edit-cancelled-note').hidden = !c;
+  $('#btn-cancel-entry').hidden = c;
+  $('#btn-restore-entry').hidden = !c;
+  $('#btn-save-edit').hidden = c;
+  for (const inp of ['#edit-amount', '#edit-date', '#edit-note']) $(inp).disabled = c;
+  syncSeg('#edit-dlg', editType, c);
+  $('#edit-dlg').showModal();
+}
+function syncSeg(scope, type, disabled) {
+  document.querySelectorAll(`${scope} .seg button`).forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.type === type)); b.disabled = !!disabled; });
+}
+function saveEdit() {
+  const t = state.txns.find(x => x.id === editId); if (!t) return;
+  const err = $('#edit-err');
+  const date = $('#edit-date').value;
+  const note = $('#edit-note').value.trim();
+  const v = checkFields($('#edit-amount').value, date);
+  if (v.err) { err.textContent = v.err; return; }
+  if (t.type === editType && t.amount === v.amount && t.date === date && (t.note || '') === note) { $('#edit-dlg').close(); return; }
+  const cand = state.txns.map(x => x.id === t.id ? { ...x, type: editType, amount: v.amount, date, note } : x);
+  const neg = compute(cand).firstNeg;
+  if (neg) { err.textContent = negativeErr(neg); return; }
+  const prev = { type: t.type, amount: t.amount, date: t.date, note: t.note || '' };
+  const before = JSON.stringify(t);
+  t.history = t.history || [];
+  t.history.push({ at: new Date().toISOString(), action: 'edited', prev });
+  const oldDate = t.date;
+  Object.assign(t, { type: editType, amount: v.amount, date, note });
+  if (!save()) { Object.assign(t, JSON.parse(before)); return; }
+  $('#edit-dlg').close();
+  toast(`Entry changed.${touchesInterest(oldDate < date ? oldDate : date) ? ' Interest recalculated.' : ''}`);
+  render();
+}
+function cancelEntry() {
+  const t = state.txns.find(x => x.id === editId); if (!t) return;
+  const cand = state.txns.map(x => x.id === t.id ? { ...x, cancelled: { at: 'x' } } : x);
+  const neg = compute(cand).firstNeg;
+  if (neg) { $('#edit-err').textContent = `Cancelling this would take ${poss(state.holder)} balance below zero on ${fmtDate(neg)}.`; return; }
+  if (!confirm('Cancel this entry? It stays in the passbook, crossed out, and stops counting toward the balance.')) return;
+  const at = new Date().toISOString();
+  t.cancelled = { at };
+  t.history = t.history || [];
+  t.history.push({ at, action: 'cancelled' });
+  if (!save()) { delete t.cancelled; t.history.pop(); return; }
+  $('#edit-dlg').close();
+  toast('Entry cancelled.');
+  render();
+}
+function restoreEntry() {
+  const t = state.txns.find(x => x.id === editId); if (!t) return;
+  const cand = state.txns.map(x => { if (x.id !== t.id) return x; const y = { ...x }; delete y.cancelled; return y; });
+  const neg = compute(cand).firstNeg;
+  if (neg) { $('#edit-err').textContent = negativeErr(neg); return; }
+  const was = t.cancelled;
+  delete t.cancelled;
+  t.history = t.history || [];
+  t.history.push({ at: new Date().toISOString(), action: 'restored' });
+  if (!save()) { t.cancelled = was; t.history.pop(); return; }
+  $('#edit-dlg').close();
+  toast('Entry restored.');
+  render();
+}
+
+/* ---------- Settings ---------- */
+function saveRate() {
+  const err = $('#rate-err');
+  const s = $('#rate-input').value.trim().replace('%', '');
+  if (!/^\d+(\.\d{1,2})?$/.test(s) || +s > 20) { err.textContent = 'Enter a rate from 0 to 20, like 1 or 1.5.'; return; }
+  const pct = +s;
+  const from = nextFirst(todayStr());
+  if (rateOn(todayStr()) === pct && !state.rates.some(r => r.from >= from)) { err.textContent = ''; toast(`The rate is already ${pctText(pct)}.`); return; }
+  state.rates = state.rates.filter(r => r.from < from);
+  state.rates.sort((a, b) => a.from < b.from ? -1 : 1);
+  const before = state.rates[state.rates.length - 1].pct;
+  if (before === pct) {
+    save();
+    toast(`The rate stays at ${pctText(pct)} a month.`);
+  } else {
+    state.rates.push({ from, pct });
+    save();
+    toast(`${pctText(pct)} a month starts on ${fmtShort(from)}.`);
+  }
+  render();
+}
+function saveHolder() {
+  const name = $('#holder-input').value.trim();
+  if (!name) { $('#holder-err').textContent = 'Enter a name.'; return; }
+  state.holder = name; save(); toast('Name saved.'); render();
+}
+async function changePin() {
+  const err = $('#pin-err');
+  const cur = $('#pin-cur').value, n1 = $('#pin-new').value, n2 = $('#pin-new2').value;
+  if (!(await checkPin(cur))) { err.textContent = 'The current PIN didn’t match.'; return; }
+  if (!/^\d{4,6}$/.test(n1)) { err.textContent = 'Use 4 to 6 digits for the new PIN.'; return; }
+  if (n1 !== n2) { err.textContent = 'The two new PINs don’t match.'; return; }
+  state.pin = await makePin(n1); save();
+  toast('PIN changed.'); render();
+}
+function eraseAll() {
+  if (!confirm('Erase every entry and the PIN from this tablet?')) return;
+  if (!confirm('This can’t be undone without a backup. Erase everything now?')) return;
+  try { localStorage.removeItem(KEY); localStorage.removeItem(LOCK_KEY); } catch (e) {}
+  state = null; unlocked = false; view = 'summary'; didAnimate = false;
+  clearTimeout(autoLockTimer);
+  showSetup();
+}
+
+/* ---------- Backup and restore ---------- */
+async function backupNow() {
+  const payload = { app: 'CapyBank', format: 1, exportedAt: new Date().toISOString(), data: state };
+  const name = `capybank-backup-${todayStr()}.txt`;
+  const file = new File([JSON.stringify(payload, null, 1)], name, { type: 'text/plain' });
+  try {
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: 'CapyBank backup', text: `CapyBank backup for ${state.holder}, ${fmtDate(todayStr())}` });
+      markBackup(); return;
+    }
+  } catch (e) {
+    if (e && e.name === 'AbortError') return;
+  }
+  const url = URL.createObjectURL(file);
+  const a = document.createElement('a');
+  a.href = url; a.download = name; document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+  markBackup();
+}
+function markBackup() {
+  state.lastBackupAt = new Date().toISOString();
+  save();
+  toast('Backup made. Keep the file somewhere safe.');
+  if (view === 'banker') render();
+}
+function validBackup(o) {
+  if (!o || o.app !== 'CapyBank' || !o.data) return false;
+  const d = o.data;
+  if (typeof d.holder !== 'string' || !d.pin || !d.pin.hash || !d.pin.salt || !Array.isArray(d.txns) || !Array.isArray(d.rates) || !d.rates.length) return false;
+  return d.txns.every(t => t && typeof t.id === 'string' && (t.type === 'in' || t.type === 'out') && Number.isInteger(t.amount) && t.amount > 0 && validDate(t.date));
+}
+async function restoreFrom(file) {
+  if (!file) return;
+  let o;
+  try { o = JSON.parse(await file.text()); } catch (e) { o = null; }
+  if (!validBackup(o)) { toast('That file isn’t a CapyBank backup.'); return; }
+  const d = o.data;
+  const when = o.exportedAt ? fmtDate(isoDay(o.exportedAt)) : 'an unknown date';
+  const q = state
+    ? `Replace everything on this tablet with the backup from ${when}? It has ${d.txns.length} entries for ${d.holder}. The banker PIN becomes the one from the backup.`
+    : `Restore the backup from ${when}? It has ${d.txns.length} entries for ${d.holder}. Use the banker PIN from that backup.`;
+  if (!confirm(q)) return;
+  state = d;
+  if (!save()) return;
+  requestPersist();
+  unlocked = false; clearTimeout(autoLockTimer);
+  view = 'summary'; didAnimate = false;
+  render();
+  toast('Backup restored. Use the banker PIN from that backup.');
+}
+
+/* ---------- First run ---------- */
+function showSetup() {
+  $('#app').hidden = true; $('#tabs').hidden = true;
+  const el = $('#setup');
+  const today = todayStr();
+  el.hidden = false;
+  el.innerHTML = `
+  <div class="setup-head">${LOGO}<h1>Open a CapyBank account</h1><p>The banker sets this up once on this tablet.</p></div>
+  <form id="setup-form" class="panel" novalidate>
+    <label class="field">Account holder’s name<input id="su-name" maxlength="30" autocomplete="off" placeholder="Mia"></label>
+    <div class="row2">
+      <label class="field">Banker PIN (4 to 6 digits)<input id="su-pin" type="password" inputmode="numeric" autocomplete="new-password" maxlength="6"></label>
+      <label class="field">PIN again<input id="su-pin2" type="password" inputmode="numeric" autocomplete="new-password" maxlength="6"></label>
+    </div>
+    <div class="row2">
+      <label class="field">Opening deposit <span class="opt">(optional)</span><span class="money"><span class="pre">S$</span><input id="su-amount" inputmode="decimal" autocomplete="off" placeholder="0.00"></span></label>
+      <label class="field">Date of deposit<input id="su-date" type="date" value="${today}" max="${today}"></label>
+    </div>
+    <p class="form-err" id="su-err" role="alert"></p>
+    <button type="submit" class="btn primary wide">Open account</button>
+    <p class="hint" style="text-align:center">Moving to a new tablet? <button type="button" class="link-btn" style="padding:0" data-action="pick-restore">Restore from a backup</button></p>
+  </form>`;
+}
+async function finishSetup() {
+  const err = $('#su-err');
+  const name = $('#su-name').value.trim();
+  const p1 = $('#su-pin').value, p2 = $('#su-pin2').value;
+  const amtStr = $('#su-amount').value.trim(), date = $('#su-date').value;
+  if (!name) { err.textContent = 'Enter the account holder’s name.'; return; }
+  if (!/^\d{4,6}$/.test(p1)) { err.textContent = 'Use 4 to 6 digits for the PIN.'; return; }
+  if (p1 !== p2) { err.textContent = 'The two PINs don’t match.'; return; }
+  let opening = null;
+  if (amtStr) {
+    const v = checkFields(amtStr, date);
+    if (v.err) { err.textContent = v.err; return; }
+    opening = { id: uid(), type: 'in', amount: v.amount, date, note: 'Opening deposit', createdAt: new Date().toISOString(), history: [] };
+  }
+  state = { version: 1, holder: name, pin: await makePin(p1), rates: [{ from: '0000-01-01', pct: 1 }], txns: opening ? [opening] : [], lastBackupAt: null, createdAt: new Date().toISOString() };
+  if (!save()) { state = null; return; }
+  requestPersist();
+  view = 'summary';
+  render();
+  toast(`${poss(name)} account is open.`);
+}
+
+/* ---------- Navigation and events ---------- */
+function go(tab) {
+  view = tab;
+  if (tab !== 'banker') pinEntry = '';
+  render();
+  window.scrollTo(0, 0);
+}
+function rowClick(id) {
+  if (unlocked) { openEdit(id); return; }
+  if (expanded.has(id)) expanded.delete(id); else expanded.add(id);
+  renderPassbook();
+}
+
+document.addEventListener('click', e => {
+  const a = e.target.closest('[data-action]');
+  if (!a || a.disabled) return;
+  const act = a.dataset.action;
+  if (act === 'tab') go(a.dataset.tab);
+  else if (act === 'lock') lock();
+  else if (act === 'key') pressKey(a.dataset.k);
+  else if (act === 'addtype') {
+    addType = a.dataset.type;
+    syncSeg('#add-form', addType);
+    $('#add-submit').textContent = addType === 'in' ? 'Add money in' : 'Take money out';
+    $('#add-note').placeholder = addType === 'in' ? 'Birthday money from Grandma' : 'Book fair';
+    $('#add-err').textContent = '';
+  }
+  else if (act === 'edittype') { editType = a.dataset.type; syncSeg('#edit-dlg', editType); $('#edit-err').textContent = ''; }
+  else if (act === 'row') rowClick(a.dataset.id);
+  else if (act === 'close-dlg') $('#edit-dlg').close();
+  else if (act === 'cancel-entry') cancelEntry();
+  else if (act === 'restore-entry') restoreEntry();
+  else if (act === 'backup') backupNow();
+  else if (act === 'pick-restore') $('#restore-file').click();
+  else if (act === 'erase') eraseAll();
+});
+document.addEventListener('submit', e => {
+  const id = e.target.id;
+  e.preventDefault();
+  if (id === 'add-form') addEntry();
+  else if (id === 'edit-form') saveEdit();
+  else if (id === 'rate-form') saveRate();
+  else if (id === 'holder-form') saveHolder();
+  else if (id === 'pin-form') changePin();
+  else if (id === 'setup-form') finishSetup();
+});
+document.addEventListener('input', e => {
+  const f = e.target.closest('form');
+  if (f) { const er = f.querySelector('.form-err'); if (er) er.textContent = ''; }
+  if (f && f.id === 'edit-form') $('#edit-err').textContent = '';
+});
+document.addEventListener('keydown', e => {
+  const row = e.target.closest && e.target.closest('[data-action="row"]');
+  if (row && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); rowClick(row.dataset.id); return; }
+  if (state && view === 'banker' && !unlocked && !e.target.closest('input')) {
+    if (/^\d$/.test(e.key)) pressKey(e.key);
+    else if (e.key === 'Backspace') pressKey('back');
+  }
+});
+$('#restore-file').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; restoreFrom(f); });
+['pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, () => { if (unlocked) resetAutoLock(); }, { passive: true }));
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { lock(true); pinEntry = ''; }
+  else if (state) render();
+});
+let resizeT = null;
+window.addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(() => { if (state && view === 'summary') drawChart(); }, 150); });
+
+/* ---------- Start ---------- */
+state = load();
+if (state && state.pin && Array.isArray(state.txns)) { render(); requestPersist(); }
+else { state = null; showSetup(); }
+
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
+})();
+</script>
+</body>
+</html>
