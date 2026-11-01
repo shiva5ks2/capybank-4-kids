@@ -33,6 +33,11 @@ The data lives only in Chrome on that tablet. Clearing Chrome's data or resettin
 
 Upload the changed files to the repository. If you change `index.html`, also change `capybank-v1` to `capybank-v2` in `sw.js` so the tablet picks up the new copy. Her data is not affected by updates.
 
+## Demo Snapshots
+
+<img width="800" height="1323" alt="02_summary_tablet" src="https://github.com/user-attachments/assets/47ecaafa-75ad-4265-8eda-53c5853a59fb" />
+
+
 ## Credits
 
 Fonts: Fredoka, Atkinson Hyperlegible and Atkinson Hyperlegible Mono, under the SIL Open Font License (licences in `fonts/`).
