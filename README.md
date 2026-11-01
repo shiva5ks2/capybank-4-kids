@@ -35,9 +35,9 @@ Upload the changed files to the repository. If you change `index.html`, also cha
 
 ## Demo Snapshots
 
-<img width="400" alt="02_summary_tablet" src="https://github.com/user-attachments/assets/47ecaafa-75ad-4265-8eda-53c5853a59fb" />
+<img width="400" height="640" alt="02_summary_tablet" src="https://github.com/user-attachments/assets/47ecaafa-75ad-4265-8eda-53c5853a59fb" />
 
-<img width="400" alt="03_passbook_tablet" src="https://github.com/user-attachments/assets/5a1dc223-c484-42f4-8a81-36cab6da7fb7" />
+<img width="400" height="640" alt="03_passbook_tablet" src="https://github.com/user-attachments/assets/5a1dc223-c484-42f4-8a81-36cab6da7fb7" />
 
 ## Credits
 
