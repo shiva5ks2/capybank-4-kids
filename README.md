@@ -35,7 +35,7 @@ Upload the changed files to the repository. If you change `index.html`, also cha
 
 ## Demo Snapshots
 
-<img width="800" height="1323" alt="02_summary_tablet" src="https://github.com/user-attachments/assets/47ecaafa-75ad-4265-8eda-53c5853a59fb" />
+<img width="40%" alt="02_summary_tablet" src="https://github.com/user-attachments/assets/47ecaafa-75ad-4265-8eda-53c5853a59fb" />
 
 
 ## Credits
