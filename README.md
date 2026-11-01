@@ -35,14 +35,8 @@ Upload the changed files to the repository. If you change `index.html`, also cha
 
 ## Demo Snapshots
 
-<table>
-  <tr>
-    <td><img width="40%" alt="02_summary_tablet" src="https://github.com/user-attachments/assets/47ecaafa-75ad-4265-8eda-53c5853a59fb" /></td>
-    <td><img width="40%" alt="03_passbook_tablet" src="https://github.com/user-attachments/assets/5a1dc223-c484-42f4-8a81-36cab6da7fb7" /></td>
-  </tr>
-</table>
 
-<img width="40%" alt="02_summary_tablet" src="https://github.com/user-attachments/assets/47ecaafa-75ad-4265-8eda-53c5853a59fb" />
+<img width="38%" alt="02_summary_tablet" src="https://github.com/user-attachments/assets/47ecaafa-75ad-4265-8eda-53c5853a59fb" />
 
 <img width="40%" alt="03_passbook_tablet" src="https://github.com/user-attachments/assets/5a1dc223-c484-42f4-8a81-36cab6da7fb7" />
 
